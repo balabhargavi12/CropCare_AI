@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - CropCare AI</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+  <!-- Sidebar Navigation -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-brand">
+        <i class="fas fa-leaf"></i>
+        <h2>CropCare AI</h2>
+      </div>
+      <p class="sidebar-tagline">Smart farming insights</p>
+    </div>
+    
+    <nav class="sidebar-nav">
+      <a href="{{ url_for('dashboard') }}" class="nav-item active">
+        <i class="fas fa-tachometer-alt"></i>
+        <span>Dashboard</span>
+      </a>
+      <a href="{{ url_for('predict') }}" class="nav-item">
+        <i class="fas fa-camera"></i>
+        <span>Predict</span>
+      </a>
+      <a href="{{ url_for('history') }}" class="nav-item">
+        <i class="fas fa-history"></i>
+        <span>History</span>
+      </a>
+      <a href="{{ url_for('logout') }}" class="nav-item">
+        <i class="fas fa-sign-out-alt"></i>
+        <span>Logout</span>
+      </a>
+    </nav>
+    
+    <div class="sidebar-footer">
+      <button class="theme-toggle" onclick="toggleTheme()">
+        <i class="fas fa-moon"></i>
+        <span>Dark Mode</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <div class="container">
+      <!-- Header -->
+      <div class="page-header">
+        <h1>Dashboard</h1>
+        <p>Monitor your crop health and system analytics</p>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="dashboard-actions">
+        <button class="btn btn-secondary" onclick="refreshDashboard()">
+          <i class="fas fa-sync-alt"></i>
+          Refresh
+        </button>
+        <button class="btn btn-primary" onclick="window.location.href='{{ url_for('predict') }}'">
+          <i class="fas fa-plus"></i>
+          New Prediction
+        </button>
+      </div>
+
+      <!-- Stats Grid -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="fas fa-seedling"></i>
+          </div>
+          <div class="stat-number">{{ stats.fields }}</div>
+          <div class="stat-label">Total Fields</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon healthy">
+            <i class="fas fa-check-double"></i>
+          </div>
+          <div class="stat-number">{{ stats.healthy }}</div>
+          <div class="stat-label">Healthy Crops</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon warning">
+            <i class="fas fa-triangle-exclamation"></i>
+          </div>
+          <div class="stat-number" id="alerts-count">{{ stats.alerts }}</div>
+          <div class="stat-label">Alerts</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="fas fa-arrow-trend-up"></i>
+          </div>
+          <div class="stat-number">{{ stats.yield_inc }}%</div>
+          <div class="stat-label">Yield Increase</div>
+        </div>
+      </div>
+
+      <!-- Weather & Health Cards -->
+      <div class="report-grid">
+        <div class="card">
+          <div class="card-header">
+            <h2><i class="fas fa-cloud-sun"></i> Weather Report</h2>
+            <span class="card-subtitle">Current conditions</span>
+          </div>
+          <div id="weather-container" class="weather-metrics">
+            <div class="weather-metric">
+              <span><i class="fas fa-location-dot"></i> Location</span>
+              <span><b id="weather-location">--</b></span>
+            </div>
+            <div class="weather-metric">
+              <span><i class="fas fa-temperature-half"></i> Temperature</span>
+              <span><b id="current-temp">--°C</b></span>
+            </div>
+            <div class="weather-metric">
+              <span><i class="fas fa-cloud"></i> Condition</span>
+              <span><b id="weather-desc">--</b></span>
+            </div>
+            <div class="weather-metric">
+              <span><i class="fas fa-droplet"></i> Humidity</span>
+              <span><b id="humidity">--%</b></span>
+            </div>
+            <div class="weather-metric">
+              <span><i class="fas fa-wind"></i> Wind Speed</span>
+              <span><b id="wind-speed">-- km/h</b></span>
+            </div>
+            <div class="weather-metric">
+              <span><i class="fas fa-eye"></i> Visibility</span>
+              <span><b id="visibility">-- km</b></span>
+            </div>
+            <div class="weather-metric">
+              <span><i class="fas fa-cloud-rain"></i> Rainfall</span>
+              <span><b id="rainfall">-- mm</b></span>
+            </div>
+            <div id="weather-advisory" class="alert alert-info" style="display:none; margin-top:1rem;">
+              Rain forecast detected. Consider protective measures.
+            </div>
+            <div id="forecast-container" class="forecast-list" style="margin-top:1rem;"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2><i class="fas fa-leaf"></i> Crop Health Status</h2>
+            <span class="card-subtitle">Overall health overview</span>
+          </div>
+          <div id="crop-health-container" class="health-rows"></div>
+        </div>
+      </div>
+
+      <!-- Recent Activity -->
+      <div class="card">
+        <div class="card-header">
+          <h2><i class="fas fa-clock"></i> Recent Activity</h2>
+          <span class="card-subtitle">Latest predictions and updates</span>
+        </div>
+        <div class="activity-list">
+          {% if recent_predictions and recent_predictions|length > 0 %}
+            {% for item in recent_predictions %}
+              <div class="activity-item">
+                <i class="fas fa-camera text-primary"></i>
+                <div class="activity-content">
+                  <strong>{{ item.crop_type }} - {{ item.prediction }}</strong>
+                  <span>{{ 'Healthy' if item.is_healthy else 'Disease Detected' }} • Confidence {{ item.confidence }}</span>
+                </div>
+                <span class="activity-time">{{ item.date|datetime }}</span>
+              </div>
+            {% endfor %}
+          {% else %}
+            <div class="alert alert-info">No recent predictions yet.</div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+  <script>
+    // Navigation active state
+    document.addEventListener('DOMContentLoaded', function() {
+      const currentPath = window.location.pathname;
+      const navItems = document.querySelectorAll('.nav-item');
+      
+      navItems.forEach(item => {
+        const href = item.getAttribute('href');
+        if (href === currentPath) {
+          item.classList.add('active');
+        } else {
+          item.classList.remove('active');
+        }
+      });
+    });
+
+    function refreshDashboard() {
+      // Add refresh functionality
+      window.location.reload();
+    }
+
+    // export removed per request
+    </script>
+</body>
+</html>

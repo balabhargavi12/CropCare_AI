@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CropCare AI — Smart Crop Health</title>
+  <script>
+    (function(){
+      try {
+        var t = localStorage.getItem('cropcare-theme') || 'light';
+        document.documentElement.setAttribute('data-theme', t);
+      } catch(e) {}
+    })();
+  </script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    /* No scrolling on this page */
+    html, body { height: 100%; margin: 0; overflow: hidden; }
+    .landing-hero-bg {
+      background: radial-gradient(1200px 500px at 80% 10%, rgba(0,193,90,0.10), transparent),
+                  radial-gradient(900px 400px at 10% 90%, rgba(66,165,245,0.10), transparent);
+    }
+    .hero-icon-ring {
+      width: 96px; height: 96px; border-radius: 50%;
+      background: var(--card);
+      display: grid; place-items: center;
+      box-shadow: 0 10px 30px var(--shadow-color);
+    }
+    .benefit-list { list-style: none; padding: 0; margin: 0; }
+    .benefit-list li { margin:.3rem 0; color: var(--text-sec); font-size:.9rem; }
+
+    /* Compact feature cards for single-view layout */
+    .features-grid { grid-template-columns: repeat(3, 1fr); gap: .7rem; justify-items: center; }
+    .feature-card { padding: .6rem; width: 250px; }
+    .feature-icon { width: 46px; height: 46px; margin-bottom: .7rem; }
+    .feature-icon i { font-size: 1.2rem; }
+    .feature-card h3 { font-size: 1rem; margin-bottom: .4rem; }
+    .feature-card p { font-size: .86rem; line-height: 1.4; margin-bottom: .4rem; }
+    .section-header h2 { font-size: 1.7rem; margin-bottom:.35rem; }
+    .section-header p { font-size: .9rem; }
+
+    /* Reduce page padding to fit one viewport */
+    .landing-page .main-content { margin-left: 0; padding: .25rem 0; min-height: 100vh; display:flex; }
+    .landing-page .container { max-width: 1100px; height: 100vh; flex:1; display:flex; flex-direction:column; justify-content:space-between; gap:.25rem; padding: .5rem 12px .35rem; }
+    .landing-page .hero-text h1 { font-size:2.6rem; margin-bottom:.6rem; line-height:1.18; }
+    .landing-page .hero-text p { font-size:1rem; margin-bottom:.85rem; line-height:1.55; }
+    .landing-page .hero-buttons .btn { padding:.55rem 1.1rem; font-size:.95rem; }
+
+    /* Lock layout for common laptop resolution without scrolling */
+    @media (min-width: 1200px) and (max-height: 800px) {
+      .landing-page .container { max-width: 1050px; }
+      .landing-page .hero-text h1 { font-size: 2.4rem; }
+      .landing-page .hero-text p { font-size: .95rem; }
+      .features-grid { gap: .65rem; }
+      .feature-card { width: 240px; padding: .55rem; }
+      .feature-icon { width: 44px; height: 44px; }
+      .section-header h2 { font-size: 1.6rem; }
+    }
+  </style>
+ </head>
+<body class="landing-page landing-hero-bg">
+  
+
+  <div class="main-content">
+    <div class="container">
+      <!-- Hero -->
+      <div class="hero-section" style="display:grid;grid-template-columns:1.1fr .9fr;gap:.7rem;align-items:center;margin-bottom:0;margin-left:0;">
+        <div class="hero-text">
+          <h1>AI-Powered Crop Disease Detection</h1>
+          <p>Analyze leaf images to identify diseases within seconds. Get confidence scores, health status, and actionable recommendations tailored to your crop.</p>
+          <ul class="benefit-list">
+            <li><i class="fas fa-check-circle" style="color:var(--primary);"></i> Fast and accurate disease identification</li>
+            <li><i class="fas fa-check-circle" style="color:var(--primary);"></i> Clean dashboards and history tracking</li>
+            <li><i class="fas fa-check-circle" style="color:var(--primary);"></i> Works across popular crop types</li>
+          </ul>
+          <div class="hero-buttons" style="margin-top: 1.5rem;display:flex;gap:.75rem;">
+            <a class="btn btn-primary btn-large" href="{{ url_for('auth') }}">
+              <i class="fas fa-play"></i> Get Started
+            </a>
+          </div>
+        </div>
+        <div class="hero-image" style="display:grid;place-items:center;">
+          <div class="hero-icon-ring">
+            <i class="fas fa-seedling" style="font-size:2rem;color:var(--primary);"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- Features -->
+      <div class="features-section" style="margin-top:-40.5px;">
+        <div class="section-header">
+          <h2>Why Choose CropCare AI?</h2>
+          <p>Powerful workflows built for farmers and agronomists.</p>
+        </div>
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-icon"><i class="fas fa-camera"></i></div>
+            <h3>Smart Detection</h3>
+            <p>Upload crop images and get instant disease analysis with confidence scores.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon"><i class="fas fa-chart-line"></i></div>
+            <h3>Insights Dashboard</h3>
+            <p>Track health trends, weather summaries, and recent analyses in one place.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon"><i class="fas fa-history"></i></div>
+            <h3>History Tracking</h3>
+            <p>Keep a record of past predictions and revisit images and reports anytime.</p>
+          </div>
+        </div>
+      </div>
+
+      
+
+      
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+</body>
+</html>

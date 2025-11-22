@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>History - CropCare AI</title>
+  <script>
+    (function(){
+      try {
+        var t = localStorage.getItem('cropcare-theme') || 'light';
+        document.documentElement.setAttribute('data-theme', t);
+      } catch(e) {}
+    })();
+  </script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+  <div class="sidebar">
+    <div class="sidebar-brand"><i class="fa-solid fa-leaf"></i><h2>CropCare AI</h2></div>
+    <p class="sidebar-tagline">Smart farming insights</p>
+    <nav class="sidebar-nav">
+      <a href="{{ url_for('dashboard') }}" class="nav-item"><i class="fa-solid fa-gauge"></i><span>Dashboard</span></a>
+      <a href="{{ url_for('predict') }}" class="nav-item"><i class="fa-solid fa-camera"></i><span>Predict</span></a>
+      <a href="{{ url_for('history') }}" class="nav-item active"><i class="fa-solid fa-history"></i><span>History</span></a>
+      <a href="{{ url_for('logout') }}" class="nav-item"><i class="fa-solid fa-sign-out-alt"></i><span>Logout</span></a>
+    </nav>
+    <div class="sidebar-footer">
+      <button id="theme-toggle" class="theme-toggle">
+        <i class="fas fa-moon"></i>
+        <span>Dark Mode</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="main-content">
+    <div class="container">
+      <h1 style="margin-bottom:2rem">Prediction History</h1>
+
+      <div class="history-grid">
+        {% for h in history %}
+          <div class="card history-card">
+            <img class="card-img" src="{{ url_for('static', filename=h.img) }}" alt="">
+            <div style="padding:1rem">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem">
+                <h3>{{ h.disease }}</h3>
+                <span class="badge badge-{% if h.status=='Healthy' %}healthy{% else %}disease{% endif %}">{{ h.status }}</span>
+              </div>
+              <p style="color:var(--text-sec);font-size:.9rem">Confidence: <b>{{ h.conf }}%</b> | {{ h.date }}</p>
+              <p style="color:var(--text-sec);font-size:.85rem">Crop: {{ h.crop }}</p>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+</body>
+</html>

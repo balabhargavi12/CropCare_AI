@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Predict - CropCare AI</title>
+  <script>
+    (function(){
+      try {
+        var t = localStorage.getItem('cropcare-theme') || 'light';
+        document.documentElement.setAttribute('data-theme', t);
+      } catch(e) {}
+    })();
+  </script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+  <div class="sidebar">
+    <div class="sidebar-brand"><i class="fa-solid fa-leaf"></i><h2>CropCare AI</h2></div>
+    <p class="sidebar-tagline">Smart farming insights</p>
+    <nav class="sidebar-nav">
+      <a href="{{ url_for('dashboard') }}" class="nav-item"><i class="fa-solid fa-gauge"></i><span>Dashboard</span></a>
+      <a href="{{ url_for('predict') }}" class="nav-item active"><i class="fa-solid fa-camera"></i><span>Predict</span></a>
+      <a href="{{ url_for('history') }}" class="nav-item"><i class="fa-solid fa-history"></i><span>History</span></a>
+      <a href="{{ url_for('logout') }}" class="nav-item"><i class="fa-solid fa-sign-out-alt"></i><span>Logout</span></a>
+    </nav>
+    <div class="sidebar-footer">
+      <button id="theme-toggle" class="theme-toggle">
+        <i class="fas fa-moon"></i>
+        <span>Dark Mode</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="main-content">
+    <div class="container">
+      <h1 style="margin-bottom:2rem">Disease Detection</h1>
+
+      <!-- Upload Card -->
+      <div class="upload-card">
+        <div class="card-content" style="display:grid;grid-template-columns:1fr 1fr;gap:2rem">
+          <!-- Upload -->
+          <div>
+            <h3><i class="fa-solid fa-cloud-arrow-up"></i> Upload Leaf Image</h3>
+            <div id="file-upload-area" class="upload-area">
+              <i class="fa-solid fa-image" style="font-size:3rem;color:var(--primary)"></i>
+              <p style="margin-top:1rem">Drag & drop or click to select</p>
+              <input type="file" id="image-input" accept="image/*" style="display:none">
+            </div>
+            <form id="prediction-form">
+              <button type="submit" class="btn btn-primary" style="margin-top:1.5rem;width:100%" id="predict-btn">Analyze Disease</button>
+            </form>
+          </div>
+          <!-- Preview -->
+          <div id="image-preview-container" class="upload-preview" style="display:none">
+            <h3><i class="fa-solid fa-eye"></i> Preview</h3>
+            <img id="preview-img" src="" alt="preview">
+            <div class="image-info">
+              <p><strong>Name:</strong> <span id="image-name"></span></p>
+              <p><strong>Size:</strong> <span id="image-size"></span></p>
+            </div>
+            <button id="remove-image" class="btn btn-secondary" style="margin-top:1rem;width:100%">Remove Image</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Loading Card -->
+      <div id="loading-card" class="card" style="display:none">
+        <div class="card-content">
+          <h3><i class="fa-solid fa-spinner fa-spin"></i> Analyzing Image</h3>
+          <div class="progress-bar">
+            <div id="progress-fill" class="progress-fill"></div>
+          </div>
+          <p id="progress-text">0%</p>
+          <p>Please wait while we analyze your crop image...</p>
+        </div>
+      </div>
+
+      <!-- Results Section -->
+      <div id="results-section" class="results-grid" style="display:none">
+        <div class="card">
+          <div class="card-content">
+            <h3><i class="fa-solid fa-seedling"></i> Crop Type</h3>
+            <p id="crop-type-result">-</p>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-content">
+            <h3><i class="fa-solid fa-bacteria"></i> Disease Name</h3>
+            <p id="disease-result">-</p>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-content">
+            <h3><i class="fa-solid fa-percent"></i> Confidence</h3>
+            <p id="confidence-result">-</p>
+            <div class="confidence-bar">
+              <div id="confidence-bar" class="confidence-fill"></div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-content">
+            <h3><i class="fa-solid fa-heart-pulse"></i> Health Status</h3>
+            <p id="health-status">-</p>
+            <i id="status-icon" class="fas fa-question-circle"></i>
+          </div>
+        </div>
+        <div class="card full-width">
+          <div class="card-content">
+            <h3><i class="fa-solid fa-chart-line"></i> Severity Assessment</h3>
+            <div class="severity-bar">
+              <div id="severity-fill" class="severity-fill"></div>
+            </div>
+            <p id="severity-text">-</p>
+          </div>
+        </div>
+        <div class="card full-width">
+          <div class="card-content">
+            <h3><i class="fa-solid fa-lightbulb"></i> Recommendations</h3>
+            <ul id="recommendations" class="recommendations-list">
+              <!-- Recommendations will be populated here -->
+            </ul>
+          </div>
+        </div>
+        <div class="card full-width">
+          <div class="card-content">
+            <h3><i class="fa-solid fa-image"></i> Processed Image</h3>
+            <img id="preview-image" src="" alt="Processed image" style="max-width:100%;border-radius:8px;">
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div id="action-buttons" class="action-buttons" style="display:none">
+        <button id="download-report-btn" class="btn btn-secondary"><i class="fa-solid fa-download"></i> Download Report</button>
+        <button id="analyze-another" class="btn btn-outline"><i class="fa-solid fa-plus"></i> Analyze Another</button>
+        <button id="view-history" class="btn btn-primary"><i class="fa-solid fa-history"></i> View History</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/predict.js') }}"></script>
+</body>
+</html>
